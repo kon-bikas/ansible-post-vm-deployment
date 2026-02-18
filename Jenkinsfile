@@ -24,7 +24,6 @@ pipeline {
       stage ('Creating/updating infrastructure') {
             steps {
                   sh '''
-                        echo "$AWS_ACCESS_KEY_ID"
                         ./infra.sh -y
                   '''
             }
