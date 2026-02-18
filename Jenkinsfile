@@ -15,7 +15,7 @@ pipeline {
             steps {
                   dir("./terraform") {
                         echo "hello world"
-                        pwd
+                        sh "pwd"
                   }
             }
       }
