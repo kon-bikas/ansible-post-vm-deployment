@@ -13,9 +13,10 @@ pipeline {
     stages {
       stage ('Testing pipeline') {
             steps {
-                  sh '''
+                  dir("./terraform") {
                         echo "hello world"
-                  '''
+                        pwd
+                  }
             }
       }
       //   stage ('Initializing and validating terraform') {
