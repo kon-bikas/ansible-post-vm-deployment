@@ -1,6 +1,5 @@
 # #!/bin/bash
 command="apply"
-# if [ ! -z $1 ]; then command=$1; fi
 if [[ ! -z $1 ]]; then 
       if [[ $1 = "-y" ]]; then
             command="apply -auto-approve"
