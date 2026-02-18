@@ -1,0 +1,4 @@
+psql: 
+  username: spring
+  password: spring123
+  database: postr

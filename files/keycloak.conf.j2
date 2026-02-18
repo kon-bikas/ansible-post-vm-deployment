@@ -1,0 +1,15 @@
+bootstrap-admin-username={{ admin.username }}
+bootstrap-admin-password={{ admin.password }}
+
+spi-events-listener-test-listener-enabled=true
+spi-events-listener-test-listener-rabbit-host={{ broker_host }}
+spi-events-listener-test-listener-rabbit-port={{ broker.port }}
+spi-events-listener-test-listener-rabbit-username={{ broker.admin.username }}
+spi-events-listener-test-listener-rabbit-password={{ broker.admin.password }}
+spi-events-listener-test-listener-rabbit-exchange={{ broker.exchange }}
+spi-events-listener-test-listener-rabbit-virtual-host={{ broker.virtual_host }}
+
+db=postgres
+db-username={{ psql.username }}
+db-password={{ psql.password }}
+db-url=jdbc:postgresql://{{ psql_host }}:5432/{{ psql.database }}

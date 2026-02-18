@@ -1,0 +1,74 @@
+---
+  - name: Install and setup rabbitmq 
+    become: true
+    hosts: message_broker_servers 
+
+    pre_tasks: 
+      - name: Installing rabbitmq dependencies
+        apt: 
+          pkg:
+            - curl
+            - gnupg 
+            - apt-transport-https
+          state: present
+          update_cache: true
+
+      - name: Install team reabbitmq's signing key 
+        shell: > 
+          curl -1sLf 
+          "https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA" | 
+          sudo gpg --dearmor | sudo tee /usr/share/keyrings/com.rabbitmq.team.gpg > /dev/null
+        args: 
+          executable: /bin/bash
+
+      - name: Adding rabbit and erlang apt repositories
+        shell: |
+          sudo tee /etc/apt/sources.list.d/rabbitmq.list <<EOF
+          ## Modern Erlang/OTP releases
+          ##
+          deb [arch=amd64 signed-by=/usr/share/keyrings/com.rabbitmq.team.gpg] https://deb1.rabbitmq.com/rabbitmq-erlang/ubuntu/noble noble main
+          deb [arch=amd64 signed-by=/usr/share/keyrings/com.rabbitmq.team.gpg] https://deb2.rabbitmq.com/rabbitmq-erlang/ubuntu/noble noble main
+
+          ## Provides modern RabbitMQ releases
+          ##
+          deb [arch=amd64 signed-by=/usr/share/keyrings/com.rabbitmq.team.gpg] https://deb1.rabbitmq.com/rabbitmq-server/ubuntu/noble noble main
+          deb [arch=amd64 signed-by=/usr/share/keyrings/com.rabbitmq.team.gpg] https://deb2.rabbitmq.com/rabbitmq-server/ubuntu/noble noble main
+          EOF
+        args:
+          executable: /bin/bash 
+        
+      - name: Update apt cache 
+        apt: 
+          update_cache: true 
+      
+    tasks:
+      - name: Installing rabbitmq and erlang 
+        apt: 
+          pkg: 
+            - rabbitmq-server
+            - erlang 
+          state: present
+          update_cache: true 
+      
+      - name: Enable rabbitmq management plugin
+        community.rabbitmq.rabbitmq_plugin:
+          names: rabbitmq_management
+          state: enabled
+
+      - name: Adding conf file to rabbitmq server
+        template:
+          src: ../files/rabbitmq.conf.j2
+          dest: /etc/rabbitmq/rabbitmq.conf
+        notify: restart rabbitmq
+      
+      - name: Importing data to rabbitmq server
+        copy: 
+          src: ../files/definitions.json
+          dest: /etc/rabbitmq
+        notify: restart rabbitmq
+
+    handlers:
+      - name: restart rabbitmq
+        service:
+          name: rabbitmq-server
+          state: restarted

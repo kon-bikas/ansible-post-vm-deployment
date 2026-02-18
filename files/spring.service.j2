@@ -1,0 +1,12 @@
+[Unit]
+Description=Spring post app deamon
+After=network.target
+
+[Service]
+ExecStart=java -jar {{ appdir }}/target/postr-0.0.1-SNAPSHOT.jar
+Restart=always
+User={{ ansible_user }}
+Group=spring-user
+
+[Install]
+WantedBy=mutli-user.target

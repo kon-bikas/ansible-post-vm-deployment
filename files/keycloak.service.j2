@@ -1,0 +1,14 @@
+[Unit]
+Description=Keycloak deamon
+After=network.target
+
+[Service]
+ExecStart=/opt/keycloak-{{ kc_version }}/bin/kc.sh start-dev --import-realm --https-port={{ https_port }} \
+      --https-certificate-file={{ ansible_user_dir }}/keycloak-server.crt.pem \
+      --https-certificate-key-file={{ ansible_user_dir }}/keycloak-server.key.pem
+Restart=always
+User={{ ansible_user }}
+Group=keycloak
+
+[Install]
+WantedBy=mutli-user.target

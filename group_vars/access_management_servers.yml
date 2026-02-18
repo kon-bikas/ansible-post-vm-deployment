@@ -1,0 +1,21 @@
+admin:
+  username: admin
+  password: admin
+
+https_port: 8081
+kc_version: 26.5.2
+
+psql_host: 172.31.41.89
+psql:
+  username: keycloak
+  password: kc123
+  database: access_db
+
+broker_host: 172.31.41.89
+broker:
+  port: 5672
+  admin:
+    username: admin
+    password: admin
+  exchange: app.exchange
+  virtual_host: service

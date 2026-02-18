@@ -1,0 +1,63 @@
+---
+  - name: Setting up spring boot application
+    hosts: application_servers
+    roles:
+      - kwoodson.yedit
+
+    pre_tasks:
+      - name: Installing java
+        become: true
+        apt:
+          name: openjdk-21-jdk
+          state: present
+          update_cache: true
+
+    tasks:
+      - name: Cloning github repo
+        git:
+          repo: https://github.com/kon-bikas/post-backend.git
+          dest: "{{ appdir }}"
+          version: main
+          force: yes
+
+      - name: configure application.yml file
+        yedit:
+          src: "{{ appdir }}/src/main/resources/application.yml"
+          key: "{{ item.key }}"
+          value: "{{ item.value }}"
+          state: present
+        with_items:
+          - "{{ app.env | dict2items }}"
+
+      - name: build spring project
+        command: "./mvnw package -Dmaven.test.skip"
+        args:
+          chdir: "{{ appdir }}"
+
+      - name: Creating spring group
+        become: true
+        group:
+          name: spring-user
+          state: present
+          system: true
+
+      - name: Assigning owner to spring directory
+        become: true
+        file:
+          path: "{{ appdir }}"
+          group: spring-user
+          owner: "{{ ansible_user }}"
+          recurse: true
+
+      - name: Copying keycloak.service file to server's systemd
+        become: true
+        template:
+          src: ../files/spring.service.j2
+          dest: /etc/systemd/system/spring.service 
+
+      - name: Start and enable spring service
+        become: true
+        service:
+          name: spring
+          state: started
+          enabled: true

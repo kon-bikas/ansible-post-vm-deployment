@@ -1,0 +1,8 @@
+---
+  - name: debugging playbook
+    hosts: application_servers
+    tasks:
+      - name: display rabbit ip
+        become: true
+        debug:
+          msg: "{{ rabbit_host }}"

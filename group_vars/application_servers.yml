@@ -1,0 +1,50 @@
+appdir: "{{ ansible_user_dir }}/spring"
+
+psql_host: 172.31.38.34
+psql_db: postr
+psql_user: spring
+psql_pass: spring123
+
+rabbit_host: 172.31.37.215
+
+kc_host: 172.31.37.215
+kc_realm: demo-realm
+kc_client: demo-client
+kc_secret: Gxvk3c8xPYNS7EBoWO2X9PhJ4tO4qvjp
+
+minio_host: 172.31.32.25
+
+app:
+  env:
+    spring.datasource.url: "jdbc:postgresql://{{ psql_host }}:5432/{{ psql_db }}"
+    spring.datasource.username: "{{ psql_user }}"
+    spring.datasource.password: "{{ psql_pass }}"
+    spring.jpa.hibernate.ddl-auto: update
+
+    spring.profiles.active: dev
+
+    spring.rabbitmq.username: app
+    spring.rabbitmq.password: app
+    spring.rabbitmq.host: "{{ rabbit_host }}"
+    spring.rabbitmq.virtual-host: service
+
+    spring.security.oauth2.resourceserver.jwt.issuer-uri: "https://{{ kc_host }}:8081/realms/{{ kc_realm }}"
+    # spring.security.oauth2.resourceserver.jwt.jwk-set-uri: "http://{{ app_host }}:9090/realms/{{ kc_realm }}/protocol/openid-connect/certs"
+
+    app.minio.accessKey: minioadmin
+    app.minio.secretKey: minioadmin
+    app.minio.host_ip: "{{ minio_host }}"
+    app.minio.bucket: media
+
+    app.keycloak.server_url: https://{{ kc_host }}:8081
+    app.keycloak.realm: "{{ kc_realm }}"
+    app.keycloak.client_id: "{{ kc_client }}"
+    app.keycloak.client_secret: "{{ kc_secret }}"
+
+    app.rabbitmq.queue: app.queue
+
+service:
+  user: "{{ ansible_user_id }}"
+  group: "{{ ansible_user_gid }}"
+  working_dir: "{{ ansible_user_dir }}"
+  exec_start: java -jar myjar.jar

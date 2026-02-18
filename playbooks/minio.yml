@@ -1,0 +1,60 @@
+---
+  - name: Install and setup minio object storage
+    hosts: object_storage_servers
+
+    tasks: 
+      - name: Downloading minio deb package file
+        become: true
+        get_url:
+          url: https://dl.min.io/server/minio/release/linux-amd64/minio_20250907161309.0.0_amd64.deb
+          dest: "{{ ansible_user_dir }}"
+      
+      - name: Installing minio release
+        become: true
+        apt: 
+          deb: "{{ ansible_user_dir }}/minio_20250907161309.0.0_amd64.deb"
+          
+      - name: Creating minio group
+        become: true
+        group:
+          name: minio-user
+          state: present
+          system: true
+
+      - name: Creating minio user
+        become: true
+        user:
+          name: minio-user
+          system: true
+          create_home: false
+          append: true
+          groups: ["minio-user"]
+
+      - name: Create data directory with media bucket
+        become: true
+        file:
+          path: /mnt/data
+          group: minio-user
+          owner: minio-user
+          state: "directory"
+      
+      - name: Create media bucket
+        become: true
+        file:
+          path: /mnt/data/media
+          group: minio-user
+          owner: minio-user
+          state: "directory"
+      
+      - name: Copy minio conf file to remote host
+        become: true
+        copy:
+          src: ../files/minio
+          dest: /etc/default/minio
+
+      - name: Enabling minio service
+        become: true
+        service:
+          name: minio
+          state: started
+          enabled: true

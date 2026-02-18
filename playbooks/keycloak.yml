@@ -1,0 +1,110 @@
+---
+  - name: Install and setup keycloak
+    hosts: access_management_servers
+
+    pre_tasks:
+      - name: Install OpendJDK 21
+        become: true
+        apt: 
+          name: openjdk-21-jdk
+          state: present
+          update_cache: yes
+
+      - name: Install Unzip
+        become: true
+        apt:
+          name: unzip 
+          state: present
+          update_cache: yes
+
+    tasks:
+      - name: Install keycloak zip
+        become: true
+        get_url:
+          url: "https://github.com/keycloak/keycloak/releases/download/{{ kc_version }}/keycloak-{{ kc_version }}.zip"
+          dest: /tmp
+          mode: '0664'
+      
+      - name: Unzip keycloak zip
+        become: true
+        unarchive:
+          remote_src: true
+          src: "/tmp/keycloak-{{ kc_version }}.zip"
+          dest: /opt
+      
+      - name: Creating keycloak group
+        become: true
+        group:
+          name: keycloak
+          state: present
+          system: true
+        
+      - name: Adding default user to keycloak group
+        become: true
+        user:
+          name: "{{ ansible_user }}"
+          append: true
+          groups: ["keycloak"]
+      
+      - name: Making default user owner of keycloak directory
+        become: true
+        file: 
+          path: /opt/keycloak-{{ kc_version }}
+          owner: "{{ ansible_user }}"
+          group: keycloak
+          recurse: true
+
+      - name: Adding admin user to keycloak configuration
+        become: true
+        template:
+          src: ../files/keycloak.conf.j2
+          dest: "/opt/keycloak-{{ kc_version }}/conf/keycloak.conf"
+      
+      - name: Check weather cert exists in server
+        stat:
+          path: "{{ ansible_user_dir }}/keycloak-server.crt.pem"
+        register: cert
+      
+      - name: Create tls certificate if not exists
+        shell: >
+          openssl req -newkey rsa:2048 -nodes
+          -keyout keycloak-server.key.pem -x509 -days 3650
+          -out keycloak-server.crt.pem -subj "/C=GR/ST=Attiki/L=Athens/O=MyOrg/OU=IT/CN=mydomain.com"
+        when: not cert.stat.exists
+
+      - name: Copying realm import json file
+        copy:
+          src: ../files/import.json
+          dest: "/opt/keycloak-{{ kc_version }}/data/import/"
+
+      - name: Git clone keycloak-event-spi project
+        git: 
+          repo: https://github.com/kon-bikas/keycloak-rabbitmq-event-spi.git
+          dest: "{{ ansible_user_dir }}/event-spi"
+          version: main 
+          force: yes
+
+      - name: mvn package the java keycloack event spi project
+        command: "./mvnw package -Dmaven.test.skip"
+        args: 
+          chdir: "{{ ansible_user_dir }}/event-spi"
+        
+      - name: mv jar to keycloak providers directory
+        become: true
+        command: "mv ./target/keycloak-event-spi.jar /opt/keycloak-{{ kc_version }}/providers"
+        args: 
+          chdir: "{{ ansible_user_dir }}/event-spi"
+
+      - name: Copying keycloak.service file to server's systemd
+        become: true
+        template:
+          src: ../files/keycloak.service.j2
+          dest: /etc/systemd/system/keycloak.service 
+
+      - name: Start and enable keycloak service
+        become: true
+        service:
+          name: keycloak
+          state: started
+          enabled: true
+      

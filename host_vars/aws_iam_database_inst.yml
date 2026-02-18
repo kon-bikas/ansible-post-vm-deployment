@@ -1,0 +1,4 @@
+psql: 
+  username: keycloak
+  password: kc123
+  database: access_db

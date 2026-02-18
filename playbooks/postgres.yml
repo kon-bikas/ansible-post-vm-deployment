@@ -1,0 +1,85 @@
+---
+  - name: Installing and setting up a PSQL database
+    hosts: app_database_servers:iam_database_servers
+    become: true
+    become_user: root
+
+    tasks:
+      - name: display user and database names
+        debug:
+          msg: "user: {{ psql.username }} | db: {{ psql.database }}"
+
+      - name: Installing postgresql database package and pip
+        apt:
+          name: postgresql, python3-pip
+          state: present
+          update_cache: yes
+        
+      - name: Enable other devices to connect to psql server
+        lineinfile:
+          path: /etc/postgresql/16/main/postgresql.conf
+          regexp: '#listen_addresses = ''localhost'''
+          line: "listen_addresses = '*'"
+        notify: 
+          - restart postgresql
+
+      - name: edit pg_hba.conf file
+        lineinfile:
+          path: /etc/postgresql/16/main/pg_hba.conf
+          insertafter: 'EOF'
+          line: "host   all   all   0.0.0.0/0   scram-sha-256"
+        notify: 
+          - restart postgresql
+
+      - name: install psycopg2
+        apt: 
+          name: python3-psycopg2
+          state: present
+          update_cache: yes
+
+      - name: create database
+        become: true
+        become_user: postgres
+        postgresql_db:
+          name: "{{ psql.database }}"
+          state: present
+          comment: 'This is a test database'
+
+      - name: create database user
+        become: true
+        become_user: postgres
+        postgresql_user:
+          name: "{{ psql.username }}"
+          password: "{{ psql.password }}"
+
+      - name: Grant db user access to app db
+        postgresql_privs:
+          type: database
+          login_db: "{{ psql.database }}"
+          roles: "{{ psql.username }}"
+          grant_option: no
+          privs: ALL
+        become: true
+        become_user: postgres
+      
+      - name: Grant all privs for user for schema public
+        postgresql_privs:
+          login_db: "{{ psql.database }}"
+          type: schema
+          obj: public
+          roles: "{{ psql.username }}"
+          privs: ALL
+        become: true
+        become_user: postgres
+
+      - name: make sure db service is active and enabled
+        service:
+          name: postgresql
+          state: started
+          enabled: yes
+
+    handlers:
+      - name: restart postgresql
+        service:
+          name: postgresql
+          state: restarted
