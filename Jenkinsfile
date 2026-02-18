@@ -5,9 +5,8 @@ pipeline {
         AWS_ACCESS_KEY_ID = credentials("aws-access-key")
         AWS_SECRET_ACCESS_KEY = credentials("aws-secret-key")
 
-        ANSIBLE_CONFIG = '/var/lib/jenkins/workspace/ansible/ansible.cfg'
+        ANSIBLE_CONFIG = '/var/lib/jenkins/workspace/terraform/ansible.cfg'
         ANSIBLE_SSH_ARGS = '-F /var/lib/jenkins/.ssh/config'
-        DIR_ANSIBLE_PROJECT = '/var/lib/jenkins/workspace/ansible'
     }
 
     stages {
