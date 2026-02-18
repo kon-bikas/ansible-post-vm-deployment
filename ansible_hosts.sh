@@ -52,6 +52,8 @@ ansible-playbook ./playbooks/minio.yml
 ansible-playbook ./playbooks/keycloak.yml \
       -e psql_host=${private_ips["iam_database"]} \
       -e broker_host=${private_ips["message_broker"]}
+
+ansible-galaxy role install kwoodson.yedit
 ansible-playbook ./playbooks/spring.yml \
       -e psql_host=${private_ips["app_database"]} \
       -e rabbit_host=${private_ips["message_broker"]} \
