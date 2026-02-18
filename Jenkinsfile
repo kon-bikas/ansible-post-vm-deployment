@@ -12,9 +12,11 @@ pipeline {
 
     stages {
       stage ('Testing pipeline') {
-            sh '''
-                  echo "hello world"
-            '''
+            steps {
+                  sh '''
+                        echo "hello world"
+                  '''
+            }
       }
       //   stage ('Initializing and validating terraform') {
       //       steps {
