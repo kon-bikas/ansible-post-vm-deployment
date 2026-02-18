@@ -1,4 +1,4 @@
-# #!/bin/bash
+#!/bin/bash
 command="apply"
 if [[ ! -z $1 ]]; then 
       if [[ $1 = "-y" ]]; then

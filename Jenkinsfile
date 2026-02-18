@@ -23,7 +23,9 @@ pipeline {
       }
       stage ('Creating/updating infrastructure') {
             steps {
-                  sh "./infra.sh -y"
+                  sh '''
+                        ./infra.sh -y
+                  '''
             }
       }
       //   stage ('Configuring hosts with ansible') {
