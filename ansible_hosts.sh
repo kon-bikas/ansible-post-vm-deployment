@@ -23,7 +23,8 @@ for i in ${!hosts[@]}; do
                 jq -r ".[\"i_${hosts[$i]}\"]")
 
       host_ip=${private_ips[${hosts[$i]}]}
-      if [[ p_flag ]]; then
+      if [[ $p_flag = true ]]; then
+            echo "hello"
             host_ip=$public_ip
       fi
 
@@ -39,15 +40,15 @@ EOF
 done
 
 # if -n flag is given, do NOT run the playbooks
-if [[ n_flag ]]; then
+if [[ $n_flag = true ]]; then
       exit 0;
 fi
 
 # run the playbooks
-ansible-playbook ./playbooks/rabbitmq.yml & \
-ansible-playbook ./playbooks/postgres.yml & \
-ansible-playbook ./playbooks/minio.yml & \
-wait
+ansible-playbook ./playbooks/rabbitmq.yml
+ansible-playbook ./playbooks/postgres.yml
+ansible-playbook ./playbooks/minio.yml
+
 ansible-playbook ./playbooks/keycloak.yml \
       -e psql_host=${private_ips["iam_database"]} \
       -e broker_host=${private_ips["message_broker"]}
