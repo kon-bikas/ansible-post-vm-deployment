@@ -27,10 +27,5 @@ pipeline {
                   '''
             }
       }
-        stage ('Configuring hosts with ansible') {
-            steps {
-                sh "./ansible_hosts.sh"
-            }
-        }
     }
 }
