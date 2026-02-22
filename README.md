@@ -1,4 +1,4 @@
-# Ansible Project Name
+# Ansible post-backend application VM deployment
 
 This is an ansible and terraform project, used to create the aws infrastructure and automate application dependecie's setup configuration
 
