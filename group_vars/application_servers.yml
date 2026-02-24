@@ -9,8 +9,8 @@ rabbit_host: 172.31.37.215
 
 kc_host: 172.31.37.215
 kc_realm: demo-realm
-kc_client: demo-client
-kc_secret: Gxvk3c8xPYNS7EBoWO2X9PhJ4tO4qvjp
+kc_client: spring-client
+kc_secret: f4Va9eduFy5KTBCp3yGFSLCnVNbnPa44
 
 minio_host: 172.31.32.25
 
