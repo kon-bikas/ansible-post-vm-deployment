@@ -24,7 +24,6 @@ for i in ${!hosts[@]}; do
 
       host_ip=${private_ips[${hosts[$i]}]}
       if [[ $p_flag = true ]]; then
-            echo "hello"
             host_ip=$public_ip
       fi
 

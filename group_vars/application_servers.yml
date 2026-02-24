@@ -28,15 +28,15 @@ app:
     spring.rabbitmq.host: "{{ rabbit_host }}"
     spring.rabbitmq.virtual-host: service
 
-    spring.security.oauth2.resourceserver.jwt.issuer-uri: "https://{{ kc_host }}:8081/realms/{{ kc_realm }}"
-    # spring.security.oauth2.resourceserver.jwt.jwk-set-uri: "http://{{ app_host }}:9090/realms/{{ kc_realm }}/protocol/openid-connect/certs"
+    spring.security.oauth2.resourceserver.jwt.issuer-uri: "http://{{ kc_host }}:8080/realms/{{ kc_realm }}"
+    spring.security.oauth2.resourceserver.jwt.jwk-set-uri: "http://{{ kc_host }}:8080/realms/{{ kc_realm }}/protocol/openid-connect/certs"
 
-    app.minio.accessKey: minioadmin
-    app.minio.secretKey: minioadmin
-    app.minio.host_ip: "{{ minio_host }}"
-    app.minio.bucket: media
+    app.storage.accessKey: minioadmin
+    app.storage.secretKey: minioadmin
+    app.storage.host_ip: "{{ minio_host }}"
+    app.storage.bucket: media
 
-    app.keycloak.server_url: https://{{ kc_host }}:8081
+    app.keycloak.server_url: http://{{ kc_host }}:8080
     app.keycloak.realm: "{{ kc_realm }}"
     app.keycloak.client_id: "{{ kc_client }}"
     app.keycloak.client_secret: "{{ kc_secret }}"
