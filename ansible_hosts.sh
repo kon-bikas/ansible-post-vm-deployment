@@ -1,4 +1,8 @@
 #!/bin/bash
+logger() {
+      echo "[$0]-[$(date '+%Y-%m-%d %H:%M:%S')]-[$1]"
+}
+
 hosts=("application" "web" "access_management" "app_database"
        "iam_database" "object_storage" "message_broker")
 
@@ -36,6 +40,8 @@ ${hosts[$i]}_servers:
       ansible_ssh_user: ubuntu
       ansible_ssh_private_key_file: ~/.ssh/ec2_rsa
 EOF
+
+      logger "added ${hosts[$i]} to hosts.yml with ip ${host_ip}"
 done
 
 # if -n flag is given, do NOT run the playbooks
