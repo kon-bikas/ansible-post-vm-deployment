@@ -49,7 +49,7 @@
           owner: "{{ ansible_user }}"
           recurse: true
 
-      - name: Copying keycloak.service file to server's systemd
+      - name: Copying spring.service file to server's systemd
         become: true
         template:
           src: ../files/spring.service.j2
